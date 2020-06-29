@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutterapp/remote/question_server.dart';
-import 'package:flutterapp/ui/events/answer_event.dart';
 import 'package:meta/meta.dart';
 
 abstract class Question {
@@ -20,7 +19,13 @@ abstract class Question {
   final String hint;
   final String icon;
 
-  const Question({@required this.id, @required this.mandatory, this.title, this.hint, this.icon});
+  const Question({
+    @required this.id,
+    @required this.mandatory,
+    this.title,
+    this.hint,
+    this.icon,
+  });
 
   Question.fromJson(Map<String, dynamic> json)
       : id = json[ID],
@@ -71,8 +76,8 @@ abstract class Question {
     };
   }
 
-  Question onEvent(AnswerInputEvent event) {//DONOW make abstract method
-    return this;
+  bool isValidAnswer() { //DONOW
+    return true;
   }
 }
 
@@ -88,7 +93,13 @@ class TextQuestion extends Question {
       String hint,
       String icon,
       this.answer})
-      : super(id: id, mandatory: mandatory, title: title, hint: hint, icon: icon);
+      : super(
+          id: id,
+          mandatory: mandatory,
+          title: title,
+          hint: hint,
+          icon: icon,
+        );
 
   TextQuestion.fromJson(Map<String, dynamic> json)
       : answer = json[ANSWER],
@@ -99,20 +110,17 @@ class TextQuestion extends Question {
         super.fromServer(serverQuestion);
 
   @override
-  TextQuestion onEvent(AnswerInputEvent event) {
-    assert(event is StringAnswerInputEvent);
-    String answer = (event as StringAnswerInputEvent).answer;
-    return TextQuestion(
-        id: id, mandatory: mandatory, title: title, hint: hint, icon: icon, answer: answer);
-  }
-
-  @override
   Map<String, Object> toJson() {
     return super.toJson()..[ANSWER] = answer;
   }
 
   @override
   QuestionType get questionType => QuestionType.text;
+
+  @override
+  bool isValidAnswer() {
+    return answer?.isNotEmpty ?? false;
+  }
 }
 
 abstract class ComboQuestion extends Question {

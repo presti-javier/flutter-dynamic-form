@@ -20,15 +20,11 @@ abstract class QuestionField {
 }
 
 class TextQuestionField extends TextFormField {
+
   TextQuestionField(FormBloc formBloc, TextEditingController controller, TextQuestion question)
       : super(
           autovalidate: true,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'Enter text';
-            }
-            return null;
-          },
+          validator: (s) => question.isValidAnswer() ? null : 'Enter text',
           decoration: InputDecoration(
             labelText: '${question.title} answer: ${question.answer}',
           ),

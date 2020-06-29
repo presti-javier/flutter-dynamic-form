@@ -1,10 +1,10 @@
-import 'dart:math';
-
-import 'package:flutterapp/ui/state/form_state.dart';
 import 'package:flutterapp/domain/question.dart';
 import 'package:flutterapp/remote/question_server.dart';
 import 'package:flutterapp/ui/events/answer_event.dart';
 import 'package:flutterapp/ui/events/stepper_event.dart';
+import 'package:flutterapp/ui/state/form_page.dart';
+import 'package:flutterapp/ui/state/form_state.dart';
+import 'package:flutterapp/utils/immutable_utils.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
@@ -13,26 +13,48 @@ class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
     FormBlocState initialState = super.initialState;
     if (initialState != null) return initialState;
 
-    //DONOW load questions in form
-    List<Question> questions = [
-      Question.fromServerQuestionStatic(ServerQuestion({
-        ServerQuestion.QUESTION_TYPE: "text",
-        ServerQuestion.ID: "1",
-        ServerQuestion.MANDATORY: true,
-        ServerQuestion.TITLE: "Titulo 1",
-        ServerQuestion.HINT: "Hint 1",
-        ServerQuestion.ICON: null,
-      })),
-      Question.fromServerQuestionStatic(ServerQuestion({
-        ServerQuestion.QUESTION_TYPE: "text",
-        ServerQuestion.ID: "2",
-        ServerQuestion.MANDATORY: true,
-        ServerQuestion.TITLE: "Titulo 2",
-        ServerQuestion.HINT: "Hint 2",
-        ServerQuestion.ICON: null,
-      })),
+    //LATER load questions in form
+    List<FormPage> pages = [
+      FormPage(title: 'pagina 1', state: PageState.editing, questions: [
+        Question.fromServerQuestionStatic(ServerQuestion({
+          ServerQuestion.QUESTION_TYPE: "text",
+          ServerQuestion.ID: "10",
+          ServerQuestion.MANDATORY: true,
+          ServerQuestion.TITLE: "Titulo 10",
+          ServerQuestion.HINT: "Hint 10",
+          ServerQuestion.ICON: null,
+        })),
+        Question.fromServerQuestionStatic(ServerQuestion({
+          ServerQuestion.QUESTION_TYPE: "text",
+          ServerQuestion.ID: "11",
+          ServerQuestion.MANDATORY: true,
+          ServerQuestion.TITLE: "Titulo 11",
+          ServerQuestion.HINT: "Hint 11",
+          ServerQuestion.ICON: null,
+        })),
+      ]),
+      FormPage(title: 'pagina 2', questions: [
+        Question.fromServerQuestionStatic(ServerQuestion({
+          ServerQuestion.QUESTION_TYPE: "text",
+          ServerQuestion.ID: "20",
+          ServerQuestion.MANDATORY: true,
+          ServerQuestion.TITLE: "Titulo 20",
+          ServerQuestion.HINT: "Hint 20",
+          ServerQuestion.ICON: null,
+        })),
+      ]),
+      FormPage(title: 'pagina 3', questions: [
+        Question.fromServerQuestionStatic(ServerQuestion({
+          ServerQuestion.QUESTION_TYPE: "text",
+          ServerQuestion.ID: "30",
+          ServerQuestion.MANDATORY: true,
+          ServerQuestion.TITLE: "Titulo 30",
+          ServerQuestion.HINT: "Hint 30",
+          ServerQuestion.ICON: null,
+        })),
+      ]),
     ];
-    return FormBlocState(questions);
+    return FormBlocState(pages);
   }
 
   @override
@@ -41,24 +63,53 @@ class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
       yield onGoToStepEvent(event);
     } else if (event is NextStepEvent) {
       yield onNextStepEvent(event);
-    } else if (event is AnswerInputEvent) {
-      yield onAnswerInputEvent(event);
+    } else if (event is StringAnswerInputEvent) {
+      yield onStringAnswerInputEvent(event);
     }
   }
 
   FormBlocState onGoToStepEvent(GoToStepEvent event) {
-    return FormBlocState(state.questions, event.currentStep);
+    return FormBlocState(state.pages, event.currentStep);
   }
 
   FormBlocState onNextStepEvent(NextStepEvent event) {
-    return FormBlocState(state.questions, min(state.currentStep + 1, state.maxStep));
+    if (state.isInLastPage()) {
+      return state;
+    } else {
+      FormPage currentPage = state.currentPage;
+      FormPage newCurrentPage = FormPage(
+          title: currentPage.title, questions: currentPage.questions, state: PageState.completed);
+      FormPage nextPage = state.nextPage;
+      FormPage newNextPage =
+          FormPage(title: nextPage.title, questions: nextPage.questions, state: PageState.init);
+      List<FormPage> pages =
+          state.pages.replace(currentPage, newCurrentPage).replace(nextPage, newNextPage);
+      return FormBlocState(pages, state.currentStep + 1);
+    }
   }
 
-  FormBlocState onAnswerInputEvent(AnswerInputEvent event) {
+  FormBlocState onStringAnswerInputEvent(StringAnswerInputEvent event) {
     String questionId = event.questionId;
-    Function(Question) applyEvent = (Question q) => q.id == questionId ? q.onEvent(event) : q; //DONOW delegate event to app
-    List<Question> questionsAfterEvent = state.questions.map<Question>(applyEvent).toList();
-    return FormBlocState(questionsAfterEvent, state.currentStep);
+    String answer = event.answer;
+    List<FormPage> pages = List();
+    state.pages.forEach((page) {
+      List<Question> questions = List();
+      page.questions.forEach((question) {
+        if (question.id == questionId) {
+          assert(question is TextQuestion);
+          questions.add(TextQuestion.fromJson(question.toJson()..[TextQuestion.ANSWER] = answer));
+        } else {
+          questions.add(question);
+        }
+      });
+      PageState state = allValidAnswers(questions) ? PageState.completed : PageState.editing;
+      pages.add(FormPage(title: page.title, questions: questions, state: state));
+    });
+    return FormBlocState(pages, state.currentStep);
+  }
+
+  bool allValidAnswers(List<Question> questions) {
+    return questions.every((question) => question.isValidAnswer());
   }
 
   @override

@@ -1,27 +1,30 @@
-import 'package:flutterapp/domain/question.dart';
+import 'package:flutterapp/ui/state/form_page.dart';
 
 class FormBlocState {
-  static const String QUESTIONS = 'questions';
+  static const String PAGES = 'pages';
   static const CURRENT_STEP = 'current_step';
 
-  final List<Question> questions;
+  final List<FormPage> pages;
   final int currentStep;
-  final int maxStep = 1; //DONOW
+  FormPage get currentPage => pages[currentStep];
+  FormPage get nextPage => pages[currentStep + 1];
 
-  const FormBlocState(this.questions, [this.currentStep = 0]);
+  const FormBlocState(this.pages, [this.currentStep = 0]);
 
   static FormBlocState fromJson(Map<String, dynamic> json) {
-    List<Question> questions = List();
-    (json[QUESTIONS] as List).forEach((e) {
-      Question question = Question.fromJsonStatic(Map<String, dynamic>.from(e));
-      questions.add(question);
+    List<FormPage> pages = List();
+    (json[PAGES] as List).forEach((e) {
+      pages.add(FormPage.fromJson(Map<String, dynamic>.from(e)));
     });
-    return FormBlocState(questions, json[CURRENT_STEP]);
+    return FormBlocState(pages, json[CURRENT_STEP]);
+  }
+
+  bool isInLastPage() {
+    return currentStep == pages.length - 1;
   }
 
   Map<String, dynamic> toJson() {
-    List<Map<String, dynamic>> questionsList = List();
-    questions.forEach((e) => questionsList.add(e.toJson()));
-    return {QUESTIONS: questionsList, CURRENT_STEP: currentStep};
+    List<Map<String, dynamic>> pagesList = pages.map((e) => e.toJson()).toList();
+    return {PAGES: pagesList, CURRENT_STEP: currentStep};
   }
 }

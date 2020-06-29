@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutterapp/ui/state/form_state.dart';
-import 'package:flutterapp/domain/question.dart';
 import 'package:flutterapp/ui/bloc/form_bloc.dart';
-import 'package:flutterapp/ui/widgets/question_field.dart';
 import 'package:flutterapp/ui/events/stepper_event.dart';
+import 'package:flutterapp/ui/state/form_page.dart';
+import 'package:flutterapp/ui/state/form_state.dart';
+import 'package:flutterapp/ui/widgets/question_field.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 void main() async {
@@ -42,7 +42,7 @@ class MyHomePage extends StatelessWidget {
   Stepper getStepper(BuildContext context, FormBlocState formState) {
     final FormBloc formBloc = BlocProvider.of<FormBloc>(context);
     return Stepper(
-      steps: getSteps(context, formBloc, formState.questions),
+      steps: getSteps(context, formBloc, formState.pages),
       currentStep: formState.currentStep,
       onStepTapped: (currentStep) => formBloc.add(GoToStepEvent(currentStep)),
       onStepContinue: () => formBloc.add(NextStepEvent()),
@@ -60,20 +60,31 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  List<Step> getSteps(BuildContext context, FormBloc formBloc, List<Question> questions) {
-    return [
-      Step(
-        title: Text("Step 1"),
+  List<Step> getSteps(BuildContext context, FormBloc formBloc, List<FormPage> pages) {
+    return pages.map((page) {
+      return Step(
+        title: Text(page.title),
         isActive: true,
-        state: StepState.error,
-        content: QuestionField.getQuestionField(formBloc, questions.first),
-      ),
-      Step(
-        title: Text("Step 2"),
-        isActive: true,
-        state: StepState.indexed,
-        content: QuestionField.getQuestionField(formBloc, questions[1]),
-      ),
-    ];
+        state: getState(page.state),
+        content: Column(
+          children: page.questions.map((q) => QuestionField.getQuestionField(formBloc, q)).toList(),
+        ),
+      );
+    }).toList();
+  }
+
+  StepState getState(PageState pageState) {
+    switch (pageState) {
+      case PageState.init:
+        return StepState.indexed;
+      case PageState.editing:
+        return StepState.editing;
+      case PageState.completed:
+        return StepState.complete;
+      case PageState.uncompleted:
+        return StepState.error;
+      default:
+        return StepState.indexed;
+    }
   }
 }
