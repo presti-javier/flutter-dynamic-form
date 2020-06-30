@@ -75,10 +75,6 @@ abstract class Question {
       ICON: icon,
     };
   }
-
-  bool isValidAnswer() { //DONOW
-    return true;
-  }
 }
 
 class TextQuestion extends Question {
@@ -118,7 +114,7 @@ class TextQuestion extends Question {
   QuestionType get questionType => QuestionType.text;
 
   @override
-  bool isValidAnswer() {
+  bool isValidAnswer(String answer) {
     return answer?.isNotEmpty ?? false;
   }
 }

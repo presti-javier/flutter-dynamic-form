@@ -102,14 +102,10 @@ class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
           questions.add(question);
         }
       });
-      PageState state = allValidAnswers(questions) ? PageState.completed : PageState.editing;
+      PageState state = event.validForm ? PageState.completed : PageState.editing;
       pages.add(FormPage(title: page.title, questions: questions, state: state));
     });
     return FormBlocState(pages, state.currentStep);
-  }
-
-  bool allValidAnswers(List<Question> questions) {
-    return questions.every((question) => question.isValidAnswer());
   }
 
   @override

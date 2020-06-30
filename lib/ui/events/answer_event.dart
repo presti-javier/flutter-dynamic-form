@@ -8,6 +8,7 @@ abstract class AnswerInputEvent with FormEvent {
 
 class StringAnswerInputEvent extends AnswerInputEvent {
   final String answer;
+  final bool validForm;
 
-  const StringAnswerInputEvent(String questionId, this.answer) : super(questionId);
+  const StringAnswerInputEvent(String questionId, this.answer, this.validForm) : super(questionId);
 }
