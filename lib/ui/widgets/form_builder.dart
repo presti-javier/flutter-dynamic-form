@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutterapp/domain/question.dart';
 import 'package:flutterapp/ui/bloc/form_bloc.dart';
 import 'package:flutterapp/ui/events/stepper_event.dart';
 import 'package:flutterapp/ui/state/form_page.dart';
@@ -37,7 +38,8 @@ class FormBuilder {
   }
 
   static Step _getSteps(BuildContext context, FormBloc formBloc, FormPage page) {
-    Key key = _getKey(page);
+    //DONOW remove key and questions casts
+    GlobalKey<FormState> key = _getKey(page) as GlobalKey<FormState>;
       return Step(
         title: Text(page.title),
         isActive: true,
@@ -45,7 +47,7 @@ class FormBuilder {
         content: Form(
           key: key,
           child: Column(
-            children: page.questions.map((q) => QuestionField.getQuestionField(formBloc, q, key)).toList(),
+            children: page.questions.map((q) => QuestionField.getQuestionField(formBloc, q as TextQuestion, key)).toList(),
           ),
         ),
       );

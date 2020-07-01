@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 
 class ServerQuestion {
-  static final String ID = 'id';
-  static final String MANDATORY = 'mandatory';
-  static final String TITLE = 'title';
-  static final String HINT = 'hint';
-  static final String ICON = 'icon';
-  static final String QUESTION_TYPE = 'question_type';
+  static const String ID = 'id';
+  static const String MANDATORY = 'mandatory';
+  static const String TITLE = 'title';
+  static const String HINT = 'hint';
+  static const String ICON = 'icon';
+  static const String QUESTION_TYPE = 'question_type';
 
-  static final String OPTIONS = 'options';
+  static const String OPTIONS = 'options';
 
   final String id;
   final bool mandatory;

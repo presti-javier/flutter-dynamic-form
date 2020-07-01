@@ -3,12 +3,12 @@ import 'package:flutterapp/remote/question_server.dart';
 import 'package:meta/meta.dart';
 
 abstract class Question {
-  static final String TYPE = 'type';
-  static final String ID = 'id';
-  static final String MANDATORY = 'mandatory';
-  static final String TITLE = 'title';
-  static final String HINT = 'hint';
-  static final String ICON = 'icon';
+  static const String TYPE = 'type';
+  static const String ID = 'id';
+  static const String MANDATORY = 'mandatory';
+  static const String TITLE = 'title';
+  static const String HINT = 'hint';
+  static const String ICON = 'icon';
 
   QuestionType get questionType;
 
@@ -66,7 +66,7 @@ abstract class Question {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       TYPE: describeEnum(questionType),
       ID: id,
       MANDATORY: mandatory,
@@ -78,7 +78,7 @@ abstract class Question {
 }
 
 class TextQuestion extends Question {
-  static final String ANSWER = 'answer';
+  static const String ANSWER = 'answer';
 
   final String answer;
 
@@ -120,7 +120,7 @@ class TextQuestion extends Question {
 }
 
 abstract class ComboQuestion extends Question {
-  static final String OPTIONS = 'options';
+  static const String OPTIONS = 'options';
 
   List<String> options;
 
@@ -134,7 +134,7 @@ abstract class ComboQuestion extends Question {
 }
 
 class SimpleComboQuestion extends ComboQuestion {
-  static final String ANSWER = 'answer';
+  static const String ANSWER = 'answer';
 
   String answer;
 
@@ -149,8 +149,8 @@ class SimpleComboQuestion extends ComboQuestion {
 }
 
 class SimpleComboChainQuestion extends SimpleComboQuestion {
-  static final String CHAIN_ID = "chain_id";
-  static final String OPTIONS = 'options';
+  static const String CHAIN_ID = "chain_id";
+  static const String OPTIONS = 'options';
 
   final String chainId;
   final Map<String, List<String>> optionsMap;

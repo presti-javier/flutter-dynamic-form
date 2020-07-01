@@ -13,7 +13,8 @@ class FormBlocState {
 
   static FormBlocState fromJson(Map<String, dynamic> json) {
     List<FormPage> pages = List();
-    (json[PAGES] as List).forEach((e) {
+    List<Map> pagesJson = json[PAGES].cast<Map>();
+    pagesJson.forEach((e) {
       pages.add(FormPage.fromJson(Map<String, dynamic>.from(e)));
     });
     return FormBlocState(pages, json[CURRENT_STEP]);
@@ -25,6 +26,6 @@ class FormBlocState {
 
   Map<String, dynamic> toJson() {
     List<Map<String, dynamic>> pagesList = pages.map((e) => e.toJson()).toList();
-    return {PAGES: pagesList, CURRENT_STEP: currentStep};
+    return <String, dynamic>{PAGES: pagesList, CURRENT_STEP: currentStep};
   }
 }

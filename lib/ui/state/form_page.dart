@@ -15,7 +15,8 @@ class FormPage {
 
   static FormPage fromJson(Map<String, dynamic> json) {
     List<Question> questions = List();
-    (json[QUESTIONS] as List).forEach((e) {
+    List<Map> questionsJson = json[QUESTIONS].cast<Map>();
+    questionsJson.forEach((e) {
       Question question = Question.fromJsonStatic(Map<String, dynamic>.from(e));
       questions.add(question);
     });
@@ -29,7 +30,7 @@ class FormPage {
 
   Map<String, dynamic> toJson() {
     List<Map<String, dynamic>> questionsList = questions.map((e) => e.toJson()).toList();
-    return {
+    return <String, dynamic>{
       TITLE: title,
       QUESTIONS: questionsList,
       STATE: state.toString(),
