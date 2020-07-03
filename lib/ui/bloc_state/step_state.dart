@@ -1,46 +1,24 @@
 import 'package:meta/meta.dart';
-import 'package:flutterapp/domain/question.dart';
 
-class FormPage {
+class StepBlocState {
   static const String TITLE = 'title';
-  static const String QUESTIONS = 'questions';
   static const String STATE = 'state';
 
   final String title;
-  final List<Question> questions;
   final PageState state;
 
-  const FormPage(
-      {@required this.title, @required this.questions, this.state = PageState.init});
+  const StepBlocState({@required this.title, this.state = PageState.init});
 
-  FormPage copy({String title, List<Question> questions, PageState state}) {
-    return FormPage(
-      title: title ?? this.title,
-      questions: questions ?? this.questions,
-      state: state ?? this.state,
-    );
-  }
-
-  static FormPage fromJson(Map<String, dynamic> json) {
-    List<Question> questions = List();
-    List<Map> questionsJson = json[QUESTIONS].cast<Map>();
-    questionsJson.forEach((e) {
-      Question question = Question.fromJsonStatic(Map<String, dynamic>.from(e));
-      questions.add(question);
-    });
-
-    return FormPage(
+  static StepBlocState fromJson(Map<String, dynamic> json) {
+    return StepBlocState(
       title: json[TITLE],
-      questions: questions,
       state: PageState.get(json[STATE]),
     );
   }
 
   Map<String, dynamic> toJson() {
-    List<Map<String, dynamic>> questionsList = questions.map((e) => e.toJson()).toList();
     return <String, dynamic>{
       TITLE: title,
-      QUESTIONS: questionsList,
       STATE: state.toString(),
     };
   }
@@ -54,7 +32,7 @@ enum FormPageState {
 }
 
 class PageState {
-  
+
   final String _id;
 
   const PageState._(this._id);

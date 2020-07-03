@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/domain/question.dart';
-import 'package:flutterapp/ui/bloc/form_bloc.dart';
+import 'package:flutterapp/ui/bloc/question_bloc.dart';
 import 'package:flutterapp/ui/events/answer_event.dart';
 
 abstract class QuestionField {
   static Map<String, TextEditingController> _controllers = Map();
 
-  static Widget getQuestionField(
-      FormBloc formBloc, TextQuestion question, GlobalKey<FormState> formKey) {
-    return TextQuestionField(formBloc, _getController(question), question, formKey);
+  static Widget buildQuestionField(
+      QuestionBloc questionBloc, TextQuestion question, GlobalKey<FormState> formKey) {
+    return TextQuestionField(questionBloc, _getController(question), question, formKey);
   }
 
   static TextEditingController _getController(TextQuestion question) {
@@ -17,7 +17,7 @@ abstract class QuestionField {
 }
 
 class TextQuestionField extends TextFormField {
-  TextQuestionField(FormBloc formBloc, TextEditingController controller, TextQuestion question,
+  TextQuestionField(QuestionBloc questionBloc, TextEditingController controller, TextQuestion question,
       GlobalKey<FormState> formKey)
       : super(
           validator: (s) => question.isValidAnswer(s) ? null : 'Enter text',
@@ -26,7 +26,7 @@ class TextQuestionField extends TextFormField {
           ),
           controller: controller,
           onChanged: (String answer) {
-            formBloc
+            questionBloc
                 .add(StringAnswerInputEvent(question.id, answer, formKey.currentState.validate()));
           },
         );

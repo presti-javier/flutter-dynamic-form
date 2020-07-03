@@ -69,6 +69,10 @@ class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
   }
 
   FormBlocState onGoToStepEvent(GoToStepEvent event) {
+    bool samePage = state.currentPage == event.currentStep;
+    if (samePage) {
+      return state;
+    }
     return FormBlocState(state.pages, event.currentStep);
   }
 

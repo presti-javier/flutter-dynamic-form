@@ -1,6 +1,7 @@
 mixin FormEvent {}
+mixin QuestionEvent {}
 
-abstract class AnswerInputEvent with FormEvent {
+abstract class AnswerInputEvent with FormEvent, QuestionEvent {
   final String questionId;
 
   const AnswerInputEvent(this.questionId);
