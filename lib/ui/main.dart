@@ -30,6 +30,7 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('HomePage')),
       body: BlocBuilder<FormBloc, FormBlocState>(
+        condition: (previousState, currentState) => false,
         builder: (context, formState) {
           return FormBuilder.getStepper(context, formState);
         },

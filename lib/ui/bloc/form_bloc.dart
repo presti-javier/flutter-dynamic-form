@@ -1,13 +1,18 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutterapp/domain/question.dart';
 import 'package:flutterapp/remote/question_server.dart';
 import 'package:flutterapp/ui/events/answer_event.dart';
 import 'package:flutterapp/ui/events/stepper_event.dart';
 import 'package:flutterapp/ui/state/form_page.dart';
 import 'package:flutterapp/ui/state/form_state.dart';
+import 'package:flutterapp/ui/widgets/bloc_widget.dart';
 import 'package:flutterapp/utils/immutable_utils.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
+
+  Map<String, WidgetInState> widgetStates = Map();
+
   @override
   FormBlocState get initialState {
     FormBlocState initialState = super.initialState;
@@ -97,7 +102,9 @@ class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
       page.questions.forEach((question) {
         if (question.id == questionId) {
           assert(question is TextQuestion);
-          questions.add(TextQuestion.fromJson(question.toJson()..[TextQuestion.ANSWER] = answer));
+          TextQuestion newQuestion = TextQuestion.fromJson(question.toJson()..[TextQuestion.ANSWER] = answer);
+          questions.add(newQuestion);
+//          widgetStates[questionId].rebuild(newQuestion);
         } else {
           questions.add(question);
         }
@@ -124,5 +131,11 @@ class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
     // If it returns null, then no cache updates will occur.
     // Otherwise, the returned value will be cached.
     return form.toJson();
+  }
+
+  BlocWidget<T> buildWidget<T>(String id, T data, Widget Function(T) builder) {
+    BlocWidget<T> blocWidget = BlocWidget<T>(data, builder);
+    widgetStates[id] = blocWidget.state;
+    return blocWidget;
   }
 }

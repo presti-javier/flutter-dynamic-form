@@ -47,7 +47,7 @@ class FormBuilder {
         content: Form(
           key: key,
           child: Column(
-            children: page.questions.map((q) => QuestionField.getQuestionField(formBloc, q as TextQuestion, key)).toList(),
+            children: page.questions.map((q) => QuestionField.buildQuestionField(formBloc, q as TextQuestion, key)).toList(),
           ),
         ),
       );
