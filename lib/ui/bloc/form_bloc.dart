@@ -1,17 +1,14 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutterapp/domain/question.dart';
 import 'package:flutterapp/remote/question_server.dart';
 import 'package:flutterapp/ui/events/answer_event.dart';
 import 'package:flutterapp/ui/events/stepper_event.dart';
 import 'package:flutterapp/ui/state/form_page.dart';
 import 'package:flutterapp/ui/state/form_state.dart';
-import 'package:flutterapp/ui/widgets/bloc_widget.dart';
+import 'package:flutterapp/ui/widgets/state_widget_builder.dart';
 import 'package:flutterapp/utils/immutable_utils.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
-
-  Map<String, WidgetInState> widgetStates = Map();
 
   @override
   FormBlocState get initialState {
@@ -74,7 +71,9 @@ class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
   }
 
   FormBlocState onGoToStepEvent(GoToStepEvent event) {
-    return FormBlocState(state.pages, event.currentStep);
+    FormBlocState newState = FormBlocState(state.pages, event.currentStep);
+    StateWidgetBuilder.onStepperChanged(newState); //DONOW stream data
+    return newState;
   }
 
   FormBlocState onNextStepEvent(NextStepEvent event) {
@@ -89,7 +88,9 @@ class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
           FormPage(title: nextPage.title, questions: nextPage.questions, state: PageState.init);
       List<FormPage> pages =
           state.pages.replace(currentPage, newCurrentPage).replace(nextPage, newNextPage);
-      return FormBlocState(pages, state.currentStep + 1);
+      FormBlocState newState = FormBlocState(pages, state.currentStep + 1);
+      StateWidgetBuilder.onStepperChanged(newState); //DONOW stream data
+      return newState;
     }
   }
 
@@ -104,7 +105,7 @@ class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
           assert(question is TextQuestion);
           TextQuestion newQuestion = TextQuestion.fromJson(question.toJson()..[TextQuestion.ANSWER] = answer);
           questions.add(newQuestion);
-//          widgetStates[questionId].rebuild(newQuestion);
+          StateWidgetBuilder.onQuestionAnswered(newQuestion); //DONOW stream data
         } else {
           questions.add(question);
         }
@@ -133,9 +134,4 @@ class FormBloc extends HydratedBloc<FormEvent, FormBlocState> {
     return form.toJson();
   }
 
-  BlocWidget<T> buildWidget<T>(String id, T data, Widget Function(T) builder) {
-    BlocWidget<T> blocWidget = BlocWidget<T>(data, builder);
-    widgetStates[id] = blocWidget.state;
-    return blocWidget;
-  }
 }

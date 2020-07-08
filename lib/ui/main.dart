@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterapp/ui/bloc/form_bloc.dart';
-import 'package:flutterapp/ui/state/form_state.dart';
 import 'package:flutterapp/ui/widgets/form_builder.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
@@ -27,15 +26,10 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final FormBloc formBloc = BlocProvider.of<FormBloc>(context);
     return Scaffold(
       appBar: AppBar(title: Text('HomePage')),
-      body: BlocBuilder<FormBloc, FormBlocState>(
-        condition: (previousState, currentState) => false,
-        builder: (context, formState) {
-          return FormBuilder.getStepper(context, formState);
-        },
-      ),
+      body: FormBuilder.getStepper(context, formBloc),
     );
   }
-
 }
