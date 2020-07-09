@@ -9,13 +9,6 @@ import 'package:flutterapp/ui/widgets/question_field.dart';
 
 class FormBuilder {
 
-  static Map<String, Key> keyMap = Map();
-
-  static Key _getKey(FormPage page) {
-    String id = page.title; //DONOW map pages with unique id
-    return keyMap[id] ??= GlobalKey<FormState>();
-  }
-
   static Stepper getStepper(BuildContext context, FormBlocState formState) {
     final FormBloc formBloc = BlocProvider.of<FormBloc>(context);
     return Stepper(
@@ -38,19 +31,31 @@ class FormBuilder {
   }
 
   static Step _getSteps(BuildContext context, FormBloc formBloc, FormPage page) {
-    //DONOW remove key and questions casts
-    GlobalKey<FormState> key = _getKey(page) as GlobalKey<FormState>;
-      return Step(
-        title: Text(page.title),
-        isActive: true,
-        state: _getState(page.state),
-        content: Form(
-          key: key,
-          child: Column(
-            children: page.questions.map((q) => QuestionField.getQuestionField(formBloc, q as TextQuestion, key)).toList(),
-          ),
+    //DONOW remove questions casts
+    return Step(
+      title: Text(page.title),
+      isActive: true,
+      state: _getState(page.state),
+      content: Form(
+        child: Column(
+          children: page.questions.map((q) {
+            return BlocBuilder<FormBloc, FormBlocState>(
+              condition: (previousState, currentState) {
+                FormPage page = previousState.pages.firstWhere((p) => p.questions.any((qu) => qu.id == q.id));
+                Question q1 = page.questions.firstWhere((qu) => qu.id == q.id);
+                return (q as TextQuestion).answer != (q1 as TextQuestion).answer;
+              },
+              builder: (context, formState) {
+                FormPage page = formState.pages.firstWhere((p) => p.questions.any((qu) => qu.id == q.id));
+                Question q1 = page.questions.firstWhere((qu) => qu.id == q.id);
+
+                return QuestionField.getQuestionField(formBloc, q1 as TextQuestion);
+              },
+            );
+          }).toList(),
         ),
-      );
+      ),
+    );
   }
 
   static StepState _getState(PageState pageState) {
